@@ -27,7 +27,9 @@ NAME="lightcraft-web-$VERSION"
 WORK="$CARGO_TARGET_DIR/web-package"
 rm -rf "$WORK"
 mkdir -p "$WORK/$NAME"
-cp -R "$SITE/." "$WORK/$NAME/"
+# $SITE is also cargo's `web` profile directory: copy only the site files (not build/, deps/, .fingerprint/,
+# incremental/, cargo lock files), and skip the precompressed copies (the host compresses on its own).
+find "$SITE" -maxdepth 1 -type f ! -name '.*' ! -name '*.gz' ! -name '*.br' -exec cp {} "$WORK/$NAME/" \;
 # Sample server configs (MIME type, caching, compression); harmless where unused.
 cp "$HERE/_headers" "$HERE/.htaccess" "$WORK/$NAME/"
 cp "$HERE/README.md" "$WORK/$NAME/HOSTING.md"
