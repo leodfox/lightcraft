@@ -382,7 +382,7 @@ fn rows_added_later_grow_the_stack() {
     wait_visible(&mut h);
     // two more tasks while the stack already shows one row: it grows to show them, nothing is cut off
     let b = h.app.session.activity.start("previews", "Building previews", Cancel::Yes);
-    let c = h.app.session.activity.start("lightroom", "Reading Lightroom catalog", Cancel::Yes);
+    let c = h.app.session.activity.start("lightroom", "Reading catalog", Cancel::Yes);
     wait_visible(&mut h);
     for _ in 0..5 {
         h.step();

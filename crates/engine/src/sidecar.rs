@@ -250,7 +250,7 @@ impl SidecarData {
 pub fn sidecar_packet(p: &Photo, cat: &lightcraft_catalog::Catalog) -> String {
     let nz = |s: &str| (!s.trim().is_empty()).then(|| s.to_string());
     let meta = lightcraft_meta::Metadata {
-        software: Some("LightCraft".into()),
+        software: Some("Ardoise Lumière".into()),
         title: nz(&p.meta.title),
         caption: nz(&p.meta.caption),
         alt_text: nz(&p.meta.alt_text),

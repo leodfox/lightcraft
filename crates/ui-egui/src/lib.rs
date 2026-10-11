@@ -515,7 +515,7 @@ impl LightcraftApp {
                 let t = ctx.input(|i| i.time);
                 self.ui.toast = Some((
                     crate::i18n::tr_format!(
-                        "{n} change{} saved in memory but not written to disk: {e} — LightCraft will retry",
+                        "{n} change{} saved in memory but not written to disk: {e} — Ardoise Lumière will retry",
                         if n == 1 { "" } else { "s" },
                         n = n,
                         e = e
@@ -903,7 +903,7 @@ impl LightcraftApp {
             // read and added on a worker thread (dropped folders can be large, or on a slow drive)
             if !photos.is_empty() {
                 if self.lightroom.is_some() {
-                    self.toast(ctx, "Finish Lightroom catalog import before adding photos");
+                    self.toast(ctx, "Finish catalog import before adding photos");
                 } else if let Err(e) = import::start_paths(self, photos) {
                     self.toast(ctx, e);
                 }

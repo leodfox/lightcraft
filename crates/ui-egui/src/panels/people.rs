@@ -89,7 +89,7 @@ pub fn show(app: &mut LightcraftApp, ui: &mut egui::Ui) {
     let unnamed = super::unnamed::faces(app, now);
     if people.is_empty() && unnamed.faces.is_empty() {
         let (title, body) = if chips.is_empty() {
-            ("No people yet", "Face names written to XMP by Lightroom and other apps show up here, and faces found in your photos can be named.")
+            ("No people yet", "Face names written to XMP by other apps show up here, and faces found in your photos can be named.")
         } else {
             ("No named people in these photos", "Remove a filter above, or choose Clear all")
         };

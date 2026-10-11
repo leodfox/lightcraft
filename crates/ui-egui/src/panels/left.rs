@@ -1421,8 +1421,8 @@ mod tests {
 
     #[test]
     fn a_long_path_loses_its_leading_folders_not_its_end() {
-        assert_eq!(fit("/Users/me/Pictures/Lightroom", 20), "…/Pictures/Lightroom");
-        assert_eq!(fit("/Users/me/Pictures/Lightroom", 12), "…/Lightroom");
+        assert_eq!(fit("/Users/me/Pictures/external", 20), "…/Pictures/external");
+        assert_eq!(fit("/Users/me/Pictures/external", 12), "…/external");
     }
 
     #[test]

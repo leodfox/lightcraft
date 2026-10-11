@@ -145,6 +145,9 @@ fn download(path: &str, bytes: &[u8]) -> Result<(), String> {
     let arr = js_sys::Array::of1(&js_sys::Uint8Array::from(bytes));
     let opts = web_sys::BlobPropertyBag::new();
     let name = download_name(path);
+    if crate::bridge::post_saved(name, bytes) {
+        return Ok(());
+    }
     opts.set_type(crate::store::mime_for(name));
     let blob = web_sys::Blob::new_with_u8_array_sequence_and_options(&arr, &opts).map_err(e)?;
     let url = web_sys::Url::create_object_url_with_blob(&blob).map_err(e)?;
@@ -295,7 +298,7 @@ async fn boot(opts: Options) -> Boot {
         if opts.reset {
             // everything this site keeps in the browser, photos included: never without asking
             let ok = safety::confirm(
-                "?reset deletes the LightCraft library stored in this browser, including every imported photo. \
+                "?reset deletes the Ardoise Lumière library stored in this browser, including every imported photo. \
                  This can't be undone. Delete it?",
             );
             if ok {
@@ -327,7 +330,7 @@ async fn boot(opts: Options) -> Boot {
         crate::backend::request_persistence(|granted| {
             if !granted {
                 notice(
-                    "This browser may delete LightCraft's library when it runs short of space (persistent storage wasn't granted). \
+                    "This browser may delete Ardoise Lumière's library when it runs short of space (persistent storage wasn't granted). \
                      Keep your original photos elsewhere and use File ▸ Back Up Library… now and then.",
                 );
             }
@@ -419,7 +422,7 @@ impl WebApp {
         }
         if backend.is_some() {
             notice(
-                "LightCraft in the browser is experimental. Your library is kept in this browser's storage: keep your original photos \
+                "Ardoise Lumière in the browser is experimental. Your library is kept in this browser's storage: keep your original photos \
                  elsewhere and back up with File ▸ Back Up Library….",
             );
         }
@@ -455,6 +458,13 @@ impl WebApp {
         }
         log::info!("lightcraft: {n} render workers");
         CTX.with(|c| *c.borrow_mut() = Some(cc.egui_ctx.clone()));
+        {
+            // Ardoise host bridge: files sent by the embedding page are imported like dropped ones.
+            let (originals, backend, ctx) = (originals.clone(), backend.clone(), cc.egui_ctx.clone());
+            crate::bridge::install(move |name, bytes| {
+                wasm_bindgen_futures::spawn_local(store_file(originals.clone(), backend.clone(), name, bytes, ctx.clone()));
+            });
+        }
         let origin = lightcraft_ui_egui::now_ms() - perf_now();
         WebApp {
             app,
@@ -674,7 +684,7 @@ pub fn start(chinese_font: Vec<u8>) {
         // one tab per library: two would each keep their own copy and overwrite each other's saves
         if opts.store != "memory" && safety::acquire_tab_lock().await == Some(false) {
             safety::show_blocking(
-                "LightCraft is already open in another tab or window of this browser.\n\n\
+                "Ardoise Lumière is already open in another tab or window of this browser.\n\n\
                  Switch to that tab, or close it and reload this page. (Two tabs would overwrite each other's changes.)",
             );
             return;
@@ -697,8 +707,8 @@ pub fn start(chinese_font: Vec<u8>) {
                 }
             }
             Err(e) => {
-                log::error!("LightCraft failed to start: {e:?}");
-                set_status(&format!("LightCraft failed to start: {e:?}"));
+                log::error!("Ardoise Lumière failed to start: {e:?}");
+                set_status(&format!("Ardoise Lumière failed to start: {e:?}"));
             }
         }
     });

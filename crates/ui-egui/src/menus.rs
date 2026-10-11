@@ -161,14 +161,14 @@ pub const UI_COMMANDS: &[UiCommand] = &[
     ("merge.hdrPanoramaLast", "HDR Panorama with Last Settings", None, "Photo>Photo Merge"),
     ("file.addPhotos", "Import Photos…", Some("Cmd+Shift+I"), "File"),
     ("file.addFolder", "Import from Folder…", None, "File"),
-    ("file.importLightroom", "Import Lightroom Catalog…", None, "File"),
+    ("file.importLightroom", "Import Catalog…", None, "File"),
     ("file.addFromDevice", "Import from Device", None, ""),
     ("file.findMissing", "Find Missing Photos…", None, "File"),
     ("file.backupLibrary", "Back Up Library…", None, "File"),
     ("file.restoreLibrary", "Restore Library from Backup…", None, "File"),
     ("photo.locate", "Locate Missing File…", None, ""),
     ("dialog.saveMetadataPreset", "Save Metadata Preset…", None, ""),
-    ("app.quit", "Quit LightCraft", Some("Cmd+Q"), "File"),
+    ("app.quit", "Quit Ardoise Lumière", Some("Cmd+Q"), "File"),
     ("file.importPresets", "Import Profiles & Presets…", None, "File"),
     ("file.exportPresets", "Export Presets…", None, "File"),
     ("file.importKeywords", "Import Keywords…", None, "File"),
@@ -180,17 +180,15 @@ pub const UI_COMMANDS: &[UiCommand] = &[
     ("app.openLibrary", "Open Library…", None, "File"),
     // Settings ▸ Display
     ("app.displayProfile", "Display Profile", None, ""),
-    ("app.about", "About LightCraft", None, "Help"),
+    ("app.about", "About Ardoise Lumière", None, "Help"),
     ("app.systemInfo", "System Info…", None, "Help"),
     ("app.openLogFolder", "Open Log Folder", None, "Help"),
     ("app.whatsNew", "What's New", None, "Help"),
     ("dialog.cull", "Assisted Culling…", None, "Photo"),
-    ("app.help", "LightCraft Help", Some("F1"), "Help"),
-    ("app.discord", "Join the ArtCraft Discord…", None, "Help"),
+    ("app.help", "Ardoise Lumière Help", Some("F1"), "Help"),
     ("app.feedback", "Send Feedback…", None, "Help"),
-    ("app.website", "LightCraft Website", None, "Help"),
-    ("app.github", "LightCraft on GitHub", None, "Help"),
-    ("app.artcraft", "ArtCraft Website", None, "Help"),
+    ("app.website", "Ardoise Lumière Website", None, "Help"),
+    ("app.github", "Ardoise Lumière on GitHub", None, "Help"),
     ("app.shortcuts", "Keyboard Shortcuts", Some("Cmd+/"), "Help"),
     ("app.setShortcut", "Set Keyboard Shortcut", None, ""),
     ("app.resetShortcuts", "Reset All Keyboard Shortcuts", None, ""),
@@ -1111,7 +1109,7 @@ pub fn run_ui_command(app: &mut LightcraftApp, id: &str, p: &Value) -> Option<Re
         }
         "library.browse" if !cfg!(target_arch = "wasm32") => {
             if crate::lightroom_import::is_running(app) {
-                return Some(Err("finish Lightroom catalog import before browsing folders".into()));
+                return Some(Err("finish catalog import before browsing folders".into()));
             }
             // listed and read in the background (see `import::browse`)
             let path = p.get("path").and_then(Value::as_str)?;
@@ -1119,7 +1117,7 @@ pub fn run_ui_command(app: &mut LightcraftApp, id: &str, p: &Value) -> Option<Re
         }
         "file.addPhotos" => {
             if crate::lightroom_import::is_running(app) {
-                return Some(Err("finish Lightroom catalog import before adding photos".into()));
+                return Some(Err("finish catalog import before adding photos".into()));
             }
             let paths = match p.get("paths").and_then(Value::as_array) {
                 Some(a) => a.iter().filter_map(Value::as_str).map(str::to_string).collect(),
@@ -1142,7 +1140,7 @@ pub fn run_ui_command(app: &mut LightcraftApp, id: &str, p: &Value) -> Option<Re
                 Some(path) => Some(path),
                 None => {
                     let req =
-                        PickRequest::file(crate::i18n::tr("Import Lightroom Catalog"), crate::i18n::tr("Lightroom Classic Catalog"), &["lrcat"]);
+                        PickRequest::file(crate::i18n::tr("Import Catalog"), crate::i18n::tr("Photo Catalog"), &["lrcat"]);
                     match crate::pick::ask(app, id, p, "path", req, |s| s.pick_lightroom_catalog.as_mut().and_then(|f| f()).map(|x| vec![x])) {
                         Picked::Now(v) => v.into_iter().next(),
                         Picked::Later | Picked::Unavailable => None,
@@ -1488,8 +1486,8 @@ pub fn run_ui_command(app: &mut LightcraftApp, id: &str, p: &Value) -> Option<Re
             let path = match p.get("path").and_then(Value::as_str) {
                 Some(x) => Some(x.to_string()),
                 None => {
-                    let name = format!("{}.lcpreset", group.as_deref().unwrap_or("LightCraft Presets"));
-                    let req = PickRequest::save(crate::i18n::tr("Export Presets"), crate::i18n::tr("LightCraft Preset"), &["lcpreset"], name.clone());
+                    let name = format!("{}.lcpreset", group.as_deref().unwrap_or("Ardoise Lumière Presets"));
+                    let req = PickRequest::save(crate::i18n::tr("Export Presets"), crate::i18n::tr("Ardoise Lumière Preset"), &["lcpreset"], name.clone());
                     match crate::pick::ask(app, id, p, "path", req, |s| s.save_preset_file.as_mut().map(|f| f(&name).into_iter().collect())) {
                         Picked::Now(v) => v.into_iter().next(),
                         Picked::Later => return Some(Ok(Value::Null)),
@@ -1575,7 +1573,7 @@ pub fn run_ui_command(app: &mut LightcraftApp, id: &str, p: &Value) -> Option<Re
         "app.export" => crate::control::export_active(app, p),
         "app.showInFinder" => show_in_finder(app),
         "app.openLogFolder" => open_log_folder(app),
-        "app.discord" | "app.website" | "app.github" | "app.artcraft" | "app.help" | "app.feedback" => {
+        "app.website" | "app.github" | "app.help" | "app.feedback" => {
             let url = crate::links::url_of(id).unwrap_or(crate::links::WEBSITE);
             crate::links::open(app, url)
         }
